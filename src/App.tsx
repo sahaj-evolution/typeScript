@@ -20,8 +20,11 @@ function App() {
   },[])
 
   const getToDoList = async () => {
+    setIsLoading(true);
     const response = await ReminderService.getReminders();
     setReminder(response);
+    setIsLoading(false);
+
   }
 
   const deleteReminder = (id:number) => {
