@@ -1,25 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import ReminderList from './components/ReminderList';
+import Reminder from "./models/reminder"
+import ReminderService from "./services/reminder"
+import AddReminder from './components/AddReminder';
+import Loader from './components/Loader';
 
 function App() {
+
+  const [reminder,setReminder] = useState<Reminder[]>([]);
+  const [isLoading,setIsLoading] = useState<Boolean>(false);
+  
+  useEffect(() => {
+    getToDoList();
+  },[])
+
+  const getToDoList = async () => {
+    const response = await ReminderService.getReminders();
+    setReminder(response);
+  }
+
+  const deleteReminder = (id:number) => {
+    setIsLoading(true);
+    setReminder(reminder.filter(item => item.id !== id));
+    setIsLoading(false);
+  }
+
+  const addReminder = async (title:string) => {
+    setIsLoading(true);
+    const response = await ReminderService.addReminders(title);
+    setReminder([response,...reminder])
+    setIsLoading(false);
+  }
+
   return (
+    <>
+    {isLoading &&  <Loader/>}
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <h2 className='text-center'>My Reminder</h2>
+        <AddReminder onAddReminder={addReminder} />
+        <ReminderList items={reminder} onRemoveReminder={deleteReminder}/>
     </div>
+    </>
   );
 }
 
